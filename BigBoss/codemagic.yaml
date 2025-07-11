@@ -1,0 +1,27 @@
+workflows:
+  BigBoss:
+    name: Build BigBoss iPad IPA for iOS 9.3.5
+    max_build_duration: 120
+    instance_type: mac_mini_m2
+    environment:
+      vars:
+        IOS_DEPLOYMENT_TARGET: "9.3.5"
+    scripts:
+      - name: Install dependencies
+        script: |
+          gem install cocoapods
+          pod install
+      - name: Build IPA
+        script: |
+          xcodebuild -workspace BigBoss.xcworkspace \
+                     -scheme BigBoss \
+                     -sdk iphoneos \
+                     -configuration Release \
+                     IPHONEOS_DEPLOYMENT_TARGET=${IOS_DEPLOYMENT_TARGET} \
+                     clean build
+          xcodebuild -exportArchive \
+                     -archivePath ./build/BigBoss.xcarchive \
+                     -exportOptionsPlist ExportOptions.plist \
+                     -exportPath ./build/ipa
+    artifacts:
+      - build/ipa/*.ipa
